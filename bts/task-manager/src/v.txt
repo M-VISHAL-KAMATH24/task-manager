@@ -1,0 +1,332 @@
+import React, { useState, useEffect } from "react";
+import { initializeApp } from "firebase/app";
+// Import the functions you need from the SDKs you need
+import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAF88i8mW0TUp-03VIc7oI5GlWUiUNo9Ps",
+  authDomain: "task-manager-f9bd5.firebaseapp.com",
+  projectId: "task-manager-f9bd5",
+  storageBucket: "task-manager-f9bd5.appspot.com",
+  messagingSenderId: "935058544654",
+  appId: "1:935058544654:web:6587e5bb9c0d77b156045f",
+  measurementId: "G-XMZ3Y4ZSRH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  query,
+  where,
+  doc
+} from "firebase/firestore";
+import "./App.css";
+
+// Firebase configuration
+
+// Initialize Firebase
+const auth = getAuth(app);
+const firestore = getFirestore(app);
+
+function App() {
+  const [tasks, setTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [task, setTask] = useState("");
+  const [priority, setPriority] = useState("top");
+  const [deadline, setDeadline] = useState("");
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchTasks();
+    }
+  }, [user]);
+
+  const fetchTasks = async () => {
+    if (user) {
+      const tasksQuery = query(collection(firestore, "tasks"), where("uid", "==", user.uid));
+      const tasksSnapshot = await getDocs(tasksQuery);
+      setTasks(tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }
+  };
+
+  const handleTaskChange = (e) => {
+    setTask(e.target.value);
+  };
+
+  const handlePriorityChange = (e) => {
+    setPriority(e.target.value);
+  };
+
+  const handleDeadlineChange = (e) => {
+    setDeadline(e.target.value);
+  };
+
+  const addTask = async () => {
+    if (!user) {
+      alert("You must be logged in to add tasks.");
+      return;
+    }
+
+    if (task.trim() === "") {
+      alert("Please enter a task and select a valid deadline.");
+      return;
+    }
+
+    if (editingTaskId !== null) {
+      // Edit existing task
+      const taskDocRef = doc(firestore, "tasks", editingTaskId);
+      await updateDoc(taskDocRef, {
+        task,
+        priority,
+        deadline
+      });
+      const updatedTasks = tasks.map(t =>
+        t.id === editingTaskId ? { ...t, task, priority, deadline } : t
+      );
+      setTasks(updatedTasks);
+      setEditingTaskId(null); // Reset after editing
+    } else {
+      // Add new task
+      const newTask = {
+        task,
+        priority,
+        deadline,
+        done: false,
+        uid: user.uid
+      };
+      const docRef = await addDoc(collection(firestore, "tasks"), newTask);
+      setTasks([...tasks, { id: docRef.id, ...newTask }]);
+    }
+
+    setTask("");
+    setPriority("top");
+    setDeadline("");
+  };
+
+  const markDone = async (id) => {
+    const taskDocRef = doc(firestore, "tasks", id);
+    try {
+      await updateDoc(taskDocRef, { done: true });
+      fetchTasks();
+    } catch (error) {
+      console.error("Error marking task as done: ", error);
+    }
+  };
+
+  const deleteTask = async (id) => {
+    const taskDocRef = doc(firestore, "tasks", id);
+    try {
+      await deleteDoc(taskDocRef);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error deleting task: ", error);
+    }
+  };
+
+  const deleteCompletedTask = async (id) => {
+    const taskDocRef = doc(firestore, "tasks", id);
+    try {
+      await deleteDoc(taskDocRef);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error deleting completed task: ", error);
+    }
+  };
+
+  const register = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      console.log("Registration successful");
+    } catch (error) {
+      console.error("Error registering: ", error);
+    }
+  };
+
+  const login = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      console.log("Login successful");
+    } catch (error) {
+      console.error("Error logging in: ", error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      console.log("Logout successful");
+    } catch (error) {
+      console.error("Error logging out: ", error);
+    }
+  };
+
+  const startEditingTask = (task) => {
+    setEditingTaskId(task.id);
+    setTask(task.task);
+    setPriority(task.priority);
+    setDeadline(task.deadline);
+  };
+
+  const upcomingTasks = tasks.filter((t) => !t.done);
+
+  return (
+    <div className="App">
+      <header>
+        <h1>Task Scheduler</h1>
+        {user ? (
+          <button onClick={logout}>Logout</button>
+        ) : (
+          <>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+            <button onClick={register}>Register</button>
+            <button onClick={login}>Login</button>
+          </>
+        )}
+      </header>
+      <main>
+        <div className="task-form">
+          <input
+            type="text"
+            id="task"
+            placeholder="Enter task..."
+            value={task}
+            onChange={handleTaskChange}
+          />
+          <select
+            id="priority"
+            value={priority}
+            onChange={handlePriorityChange}
+          >
+            <option value="top">Top Priority</option>
+            <option value="middle">Middle Priority</option>
+            <option value="low">Less Priority</option>
+          </select>
+          <input
+            type="date"
+            id="deadline"
+            value={deadline}
+            onChange={handleDeadlineChange}
+          />
+          <button id="add-task" onClick={addTask}>
+            {editingTaskId ? "Update Task" : "Add Task"}
+          </button>
+        </div>
+        <h2 className="heading">Upcoming Tasks</h2>
+        <div className="task-list" id="task-list">
+          <table>
+            <thead>
+              <tr>
+                <th>Task Name</th>
+                <th>Priority</th>
+                <th>Deadline</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {upcomingTasks.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.task}</td>
+                  <td>{t.priority}</td>
+                  <td>{t.deadline}</td>
+                  <td>
+                    {!t.done && (
+                      <button
+                        className="mark-done"
+                        onClick={() => markDone(t.id)}
+                      >
+                        Mark Done
+                      </button>
+                    )}
+                    <button
+                      className="edit-task"
+                      onClick={() => startEditingTask(t)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="delete-task"
+                      onClick={() => deleteTask(t.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="completed-task-list">
+          <h2 className="cheading">Completed Tasks</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Task Name</th>
+                <th>Priority</th>
+                <th>Deadline</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {completedTasks.map((ct) => (
+                <tr key={ct.id}>
+                  <td>{ct.task}</td>
+                  <td>{ct.priority}</td>
+                  <td>{ct.deadline}</td>
+                  <td>
+                    <button
+                      className="delete-completed-task"
+                      onClick={() => deleteCompletedTask(ct.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default App;

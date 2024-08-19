@@ -1,0 +1,221 @@
+/* App.css */
+* { 
+	margin: 0; 
+	padding: 0; 
+	box-sizing: border-box; 
+  color: black;
+} 
+body { 
+	font-family: Arial, sans-serif; 
+	background-color: #f0f0f0; 
+	margin: 0; 
+	padding: 0; 
+	color: #333; 
+} 
+
+header { 
+	background-color: white; 
+	color: green; 
+	text-align: center; 
+	padding: 1rem 0; 
+	box-shadow: 0 4px 18px grey; 
+} 
+
+main { 
+	max-width: 800px; 
+	margin: 20px auto; 
+	padding: 20px; 
+	background-color: #fff; 
+	box-shadow: 0 4px 18px grey; 
+	border-radius: 15px; 
+} 
+
+.task-form { 
+	display: flex; 
+	flex-wrap: wrap; 
+	gap: 10px; 
+	margin-bottom: 20px; 
+} 
+
+.task-form input, 
+.task-form select, 
+.task-form button { 
+	padding: 10px; 
+	border: 1px solid #ccc; 
+	font-size: 16px; 
+	flex: 1; 
+	border-radius: 10px; 
+} 
+
+button { 
+	background-color: green; 
+	color: white; 
+	border: none; 
+	cursor: pointer; 
+} 
+
+.mark-done { 
+	padding: 10px; 
+	font-size: 16px; 
+  background-color: rgb(10, 141, 10);
+  color: black;
+	flex: 1; 
+	border-radius: 15px; 
+	color: white; 
+	border: none; 
+	cursor: pointer; 
+} 
+.mark-done:hover{
+  background-color: rgb(18, 247, 48); 
+}
+
+.task-list { 
+	border: 1px solid #ddd; 
+	padding: 10px; 
+} 
+
+table { 
+	width: 100%; 
+	margin-top: 20px; 
+	background-color: #fff; 
+	border: 1px solid #ddd; 
+} 
+
+table th, 
+table td { 
+	padding: 19px; 
+	border-bottom: 1px solid #ddd; 
+	text-align: left; 
+} 
+
+table th { 
+	background-color: #eee; 
+	color: black; 
+	border-radius: 10px; 
+} 
+
+.completed-task-list { 
+	margin-top: 20px; 
+} 
+
+.completed-task { 
+  color: black;
+	padding: 10px; 
+	border: 1px solid crimson; 
+	border-radius: 5px; 
+	background-color: #eaffea; 
+} 
+
+.completed-task h2 { 
+	color: #28a745; 
+} 
+
+h2 { 
+	font-size: 1.3rem; 
+} 
+
+.heading { 
+	padding-bottom: 10px; 
+} 
+
+.cheading { 
+	color: rgb(54, 54, 54); 
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-task {
+  margin-left: 40px;
+  background-color: #ff4c4c; /* Red color for the delete button */
+  color: white; /* White text on the button */
+  border: 1px solid #e43e3e; /* Slightly darker border */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover effect */
+.delete-task:hover {
+  background-color: #e43e3e; /* Darken the background on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Active effect (when clicking) */
+.delete-task:active {
+  background-color: #d93636; /* Even darker background when active */
+  transform: scale(0.98); /* Slightly shrink the button */
+}
+
+
+.delete-completed-task {
+  margin-left: 40px;
+  background-color: #ff4c4c; /* Red color for the delete button */
+  color: white; /* White text on the button */
+  border: 1px solid #e43e3e; /* Slightly darker border */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover effect */
+.delete-completed-task:hover {
+  background-color: #e43e3e; /* Darken the background on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Active effect (when clicking) */
+.delete-completed-task:active {
+  background-color: #d93636; /* Even darker background when active */
+  transform: scale(0.98); /* Slightly shrink the button */
+}
+
+.edit-task {
+  background-color: #07deff; /* Green background */
+  color: white; /* White text */
+  transition: background-color 0.3s ease;
+  margin-left: 30px;
+}
+
+.edit-task:hover {
+  background-color: #45a095; /* Darker green on hover */
+}
+
+.register_button{
+	background-color: #07deff;
+	color: black;
+	margin-left: 25px;
+	margin-right: 25px;
+	border: 2px solid black;
+	border-radius: 20px;
+}
+
+.register_button:hover{
+	background-color: #a4ff07;
+
+}
+
+.login_button{
+	background-color: #07deff;
+	color: black;
+	margin-left: 25px;
+	margin-right: 25px;
+	border: 2px solid black;
+	border-radius: 20px;
+}
+.login_button:hover{
+	background-color: #a4ff07;
+}
+
+.head-input-password{
+	border: 2px solid black;
+	padding: 7px;
+	margin-left: 10px;
+
+}
+.head-input-email{
+	border: 2px solid black;
+	padding: 7px;
+
+}
